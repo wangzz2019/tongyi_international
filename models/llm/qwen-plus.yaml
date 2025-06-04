@@ -1,8 +1,8 @@
 # this model corresponds to qwen-max, for more details
 # please refer to (https://help.aliyun.com/zh/model-studio/getting-started/models#cf6cc4aa2aokf)
-model: qwen-max
+model: qwen-plus
 label:
-  en_US: qwen-max
+  en_US: qwen-plus
 model_type: llm
 features:
   - multi-tool-call
@@ -10,7 +10,7 @@ features:
   - stream-tool-call
 model_properties:
   mode: chat
-  context_size: 32768
+  context_size: 131072
 parameter_rules:
   - name: temperature
     use_template: temperature
@@ -26,7 +26,7 @@ parameter_rules:
     type: int
     default: 2000
     min: 1
-    max: 30720
+    max: 129024
     help:
       zh_Hans: 用于指定模型在生成内容时token的最大数量，它定义了生成的上限，但不保证每次都会生成到这个数量。
       en_US: It is used to specify the maximum number of tokens when the model generates content. It defines the upper limit of generation, but does not guarantee that this number will be generated every time.
@@ -81,7 +81,8 @@ parameter_rules:
   - name: response_format
     use_template: response_format
 pricing:
-  input: '1.6'
-  output: '6.4'
+  input: '0.4'
+  output: '1.2'
   unit: '1000000'
   currency: Dollar
+# this model corresponds to qwen-plus, for more details

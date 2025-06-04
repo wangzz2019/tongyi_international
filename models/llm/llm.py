@@ -69,7 +69,7 @@ dashscope.base_http_api_url = 'https://dashscope-intl.aliyuncs.com/api/v1'
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(plugin_logger_handler)
-logger.info(dashscope.base_http_api_url)
+#logger.info(dashscope.base_http_api_url)
 
 
 class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
@@ -196,8 +196,8 @@ class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
         """
         credentials_kwargs = self._to_credential_kwargs(credentials)
         mode = self.get_model_mode(model, credentials)
-        logger.info(credentials_kwargs)
-        logger.info(f"model: {model}, mode: {mode}, credentials: {credentials}, prompt_messages: {prompt_messages}, ")
+        #logger.info(credentials_kwargs)
+        #logger.info(f"model: {model}, mode: {mode}, credentials: {credentials}, prompt_messages: {prompt_messages}, ")
         if model in {"qwen-turbo-chat", "qwen-plus-chat"}:
             model = model.replace("-chat", "")
         extra_model_kwargs = {}
@@ -235,19 +235,19 @@ class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
             )
             response = MultiModalConversation.call(**params, stream=stream)
         else:
-            logger.info(f"method in convert_prompt_messages_to_tongyi_messages and prompt_messages: {prompt_messages}"),
+            #logger.info(f"method in convert_prompt_messages_to_tongyi_messages and prompt_messages: {prompt_messages}"),
             params["messages"] = self._convert_prompt_messages_to_tongyi_messages(
                 #credentials, prompt_messages
                 prompt_messages=prompt_messages
             )
-            logger.info(f"params: {params}")
+            #logger.info(f"params: {params}")
             response = Generation.call(
                 **params,
                 result_format="message",
                 stream=stream,
                 incremental_output=incremental_output,
             )
-            logger.info(f"response: {response}")
+            #logger.info(f"response: {response}")
         if stream:
             return self._handle_generate_stream_response(
                 model, credentials, response, prompt_messages, incremental_output
@@ -356,7 +356,7 @@ class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
                 )
             else:
                 message = response.output.choices[0].message
-
+                #logger.info(f"message: {message}")
                 resp_content, is_reasoning = self._wrap_thinking_by_reasoning_content(
                     message, is_reasoning
                 )
@@ -449,7 +449,7 @@ class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
         """
         tongyi_messages = []
         for prompt_message in prompt_messages:
-            logger.info(f"prompt_messages: {prompt_messages}")
+            #logger.info(f"prompt_messages: {prompt_messages}")
             if isinstance(prompt_message, SystemPromptMessage):
                 tongyi_messages.append(
                     {
@@ -458,9 +458,9 @@ class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
                     }
                 )
             elif isinstance(prompt_message, UserPromptMessage):
-                logger.info(f"UserPromptMessage check, prompt_message: {prompt_message}")
+                #logger.info(f"UserPromptMessage check, prompt_message: {prompt_message}")
                 if isinstance(prompt_message.content, str):
-                    logger.info(f"UserPromptMessage content: {prompt_message.content}")
+                    #logger.info(f"UserPromptMessage content: {prompt_message.content}")
                     tongyi_messages.append(
                         {
                             "role": "user",
@@ -512,7 +512,7 @@ class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
                     {"role": "tool", "content": prompt_message.content, "name": prompt_message.tool_call_id}
                 )
             else:
-                logger.info(f"prompt_message: {prompt_message}")
+                #logger.info(f"prompt_message: {prompt_message}")
                 raise ValueError(f"Got unknown type {prompt_message}")
 
         return tongyi_messages
@@ -571,6 +571,46 @@ class tongyi_internationalLargeLanguageModel(LargeLanguageModel):
 
         return tool_definitions
 
+    def _wrap_thinking_by_reasoning_content(self, delta: dict, is_reasoning: bool) -> tuple[str, bool]:
+        """
+        If the reasoning response is from delta.get("reasoning_content"), we wrap
+        it with HTML think tag.
+        :param delta: delta dictionary from LLM streaming response
+        :param is_reasoning: is reasoning
+        :return: tuple of (processed_content, is_reasoning)
+        """
+
+        content = delta.get("content") or ""
+        reasoning_content = delta.get("reasoning_content")
+        try:
+            if reasoning_content:
+                try:
+                    if isinstance(reasoning_content, list):
+                        reasoning_content = "\n".join(map(str, reasoning_content))
+                    elif not isinstance(reasoning_content, str):
+                        reasoning_content = str(reasoning_content)
+
+                    if not is_reasoning:
+                        content = "<think>\n" + reasoning_content
+                        is_reasoning = True
+                    else:
+                        content = reasoning_content
+                except Exception as ex:
+                    raise ValueError(
+                        f"[wrap_thinking_by_reasoning_content-1] {ex}"
+                    ) from ex
+            elif is_reasoning and content:
+                if not isinstance(content, list):
+                    content = str(content)
+                else:
+                    content = ""
+                content = "\n</think>" + content
+                is_reasoning = False
+        except Exception as ex:
+            raise ValueError(
+                f"[wrap_thinking_by_reasoning_content-2] {ex}"
+            ) from ex
+        return content, is_reasoning
     @property
     def _invoke_error_mapping(self) -> dict[type[InvokeError], list[type[Exception]]]:
         """

@@ -1,0 +1,41 @@
+background: '#EFF1FE'
+configurate_methods:
+- predefined-model
+- customizable-model
+extra:
+  python:
+    model_sources:
+    - models/llm/llm.py
+    provider_source: provider/tongyi_international.py
+help:
+  title:
+    en_US: Get your API key from AliCloud
+    zh_Hans: 从百炼国际版获取 API Key
+  url:
+    en_US: https://bailian.console.alibabacloud.com/?tab=playground#/api-key
+icon_large:
+  en_US: icon_l_en.png
+  zh_Hans: zh1.png
+icon_small:
+  en_US: icon_s_en.png
+label:
+  en_US: TONGYI INTERNATIONAL
+  zh_Hans: 通义千问国际版
+models:
+  llm:
+    position: models/llm/_position.yaml
+    predefined:
+      - models/llm/*.yaml
+provider: tongyi_international
+provider_credential_schema:
+  credential_form_schemas:
+    - variable: dashscope_api_key
+      label:
+        en_US: API Key
+      type: secret-input
+      required: true
+      placeholder:
+        en_US: Enter your API Key
+        zh_Hans: 在此输入您的 API Key
+supported_model_types:
+  - llm

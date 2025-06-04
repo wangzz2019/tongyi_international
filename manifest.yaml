@@ -1,0 +1,44 @@
+version: 0.0.1
+type: plugin
+author: wangzz2019
+name: tongyi_international
+label:
+  en_US: tongyi_international
+  ja_JP: tongyi_international
+  zh_Hans: tongyi_international
+  pt_BR: tongyi_international
+description:
+  en_US: Models from Alibaba International Model Studio
+  ja_JP: Models from Alibaba International Model Studio
+  zh_Hans: Models from Alibaba International Model Studio
+  pt_BR: Models from Alibaba International Model Studio
+icon: icon.svg
+resource:
+  memory: 268435456
+  permission:
+    model:
+      enabled: true
+      llm: true
+      text_embedding: true
+      rerank: true
+      tts: true
+      speech2text: true
+      moderation: true
+    app:
+      enabled: true
+plugins:
+  models:
+    - provider/tongyi_international.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+  minimum_dify_version: null
+created_at: 2025-05-01T17:09:12.085012+09:00
+privacy: PRIVACY.md
+verified: false

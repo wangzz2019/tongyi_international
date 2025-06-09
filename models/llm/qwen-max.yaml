@@ -83,5 +83,5 @@ parameter_rules:
 pricing:
   input: '1.6'
   output: '6.4'
-  unit: '1000000'
+  unit: '0.001'
   currency: Dollar
